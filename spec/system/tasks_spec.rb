@@ -1,33 +1,55 @@
 require 'rails_helper'
 
-RSpec.describe 'Fonction de gestion des tâches', type: :system do
-  describe 'Fonction d\'enregistrement' do
-    context 'Lors de l\'enregistrement d\'une tâche' do
-      it 'La tâche enregistrée s\'affiche' do
-        Task.create!(title: 'Préparation des documents', content: 'Créer une proposition.')
-        visit tasks_path
-        expect(page).to have_content 'Préparation des documents'
+RSpec.describe 'Fonction d\'affichage de liste', type: :system do
+   describe 'Registration function' do
+    context 'When registering a task' do
+      it 'The registered task is displayed' do
+        visit new_task_path
+        fill_in "titre", with: "first_task"
+        fill_in "contenu", with: "rangements des taches"
+        click_button "Creer"
+        expect(page).to have_content "rangements des taches"
       end
     end
   end
 
   describe 'Fonction d\'affichage de liste' do
-    context 'Lors de la transition vers l\'écran de liste' do
-      it 'Une liste des tâches enregistrées s\'affiche' do
-        FactoryBot.create(:task)
+    let!(:first_task) { FactoryBot.create(:task, title: "first_task", created_at: Time.zone.now.ago(3.days)) }
+    let!(:second_task) { FactoryBot.create(:task, title: "second_task", created_at: Time.zone.now.ago(2.days)) }
+    let!(:third_task) { FactoryBot.create(:task, title: "third_task", created_at: Time.zone.now.ago(1.days)) }
+      before do
         visit tasks_path
-        expect(page).to have_content 'Test1'
+      end
+
+      context 'When transitioning to the list screen' do
+       it 'The list of created tasks is displayed in descending order of creation date and time.' do
+        task_list = all('body tbody tr')
+        expect(task_list[0]).to have_content 'third_task'
+        expect(task_list[1]).to have_content 'second_task'
+        expect(task_list[2]).to have_content 'first_task'
       end
     end
-  end
+      context 'When creating a new task' do
+        it 'New task is displayed at the top' do
+        visit new_task_path
+        fill_in "titre", with: "first_task"
+        fill_in "contenu", with: "Test est ok"
+        click_button "Creer"
+        expect(page).to have_content "first_task"
+        end
+      end
+    end
 
-  describe 'Fonction d\'affichage détaillée' do
-     context 'Lors de la transition vers un écran de détails de tâche' do
-      let(:task) {FactoryBot.create(:task, title:'first_test', content:'test_validation')}
-       it 'Le contenu de la tâche s\'affiche' do
-        visit task_path(task)
-        expect(page).to have_content 'first_test'
-       end
+  describe 'Detailed display function' do
+        
+     context 'When transitioned to any task details screen' do
+        let (:task) {FactoryBot.create(:task, title: 'Test', content: 'Je suis un contenu')}
+        it 'The content of the task is displayed' do
+         
+          visit task_path(task)
+          visit task_path(task)
+          expect(page).to have_content 'Je suis un contenu'
+        end
      end
   end
 end
