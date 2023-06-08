@@ -13,7 +13,7 @@ fr:
         priority:  priorité
         status: statut
 
-     enum:
+        enum:
           task:
             priority:
               low: faible
@@ -23,6 +23,7 @@ fr:
               todo: Pas commencé
               doing: en cours
               done: complétée 
+    
 
       #user:
         #name: nom
