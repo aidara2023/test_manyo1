@@ -6,8 +6,11 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 50.times do |i|
-    Task.find_or_create_by (
-        title : "task#[i+1]",
-        content : "content[i*10]",
+    Task.find_or_create_by(
+        title: "task#{i+1}",
+        content: "content#{i*10}",
+        deadline_on: Date.today.since(30),
+        priority: [0, 1, 2].sample,
+        status: [0, 1, 2].sample
     )
 end
