@@ -1,129 +1,135 @@
 require 'rails_helper'
 
-RSpec.describe 'Task management function', type: :system do
-   describe 'Registration function' do
-    context 'When registering a task' do
-      it 'The registered task is displayed' do
-        visit new_task_path
-        fill_in "titre", with: "title"
-        fill_in "contenu", with: "content"
-        fill_in "Date limite", with: Date.today
-        
-        find("#task_priority").find("option[value='middle']").select_option
-        find("#task_status").find("option[value='done']").select_option
-        # select "faible", from: "task[priority]"
-        # select "未着手", from: "task[status]"
-        click_button "Creer"
-        expect(page).to have_content "J'ai enregistré une tâche"
+RSpec.describe 'user management functions', type: :system do
+  def log_in
+    FactoryBot.create(:user, name: 'test_user', email: 'test1@ex.com', password: 'password', password_confirmation: 'password', admin: false)
+    visit new_session_path
+    fill_in "session[email]",	with: "test1@ex.com" 
+    fill_in "session[password]",	with: "password" 
+    click_on 'create-session'
+  end
+
+  def admin_log_in
+    FactoryBot.create(:user, name: 'admin_user', email: 'admin@ex.com', password: 'password', password_confirmation: 'password', admin: true)
+    visit new_session_path
+    fill_in "session[email]",	with: "admin@ex.com" 
+    fill_in "session[password]",	with: "password" 
+    click_on 'create-session'
+  end
+
+  describe 'registration function' do
+    context 'If a user is registered' do
+      before do
+        visit new_user_path
+        fill_in "user[name]",	with: "aki" 
+        fill_in "user[email]",	with: "aki@ex.com" 
+        fill_in "user[password]",	with: "password" 
+        fill_in "user[password_confirmation]",	with: "password" 
+        click_on 'Creer'
+      end
+
+      it 'Transition to the task list screen.' do
+        expect(current_path).to eq '/tasks'
+      end
+    end
+    context 'If you have moved to the Task List screen without logging in' do
+      before { visit tasks_path }
+
+      it 'You are redirected to the login screen and the message \'Please log in\' is displayed.' do
+        expect(current_path).to eq '/sessions/new'
+        expect(page).to have_content 'Please log in.'
       end
     end
   end
 
-  describe 'List display function' do
-    let!(:first_task) { FactoryBot.create(:task, title: "first_task", created_at: Time.zone.now.ago(3.days),priority: :low, status: :todo) }
-    let!(:second_task) { FactoryBot.create(:task, title: "second_task", created_at: Time.zone.now.ago(2.days),priority: :middle, status: :doing) }
-    let!(:third_task) { FactoryBot.create(:task, title: "third_task", created_at: Time.zone.now.ago(1.days),priority: :high, status: :done) }
-      before do
-        visit tasks_path
+  describe 'Login Function' do
+    context 'When logged in as a registered user.' do
+      let!(:other_user) { FactoryBot.create(:user) }
+      before { log_in }
+
+      it 'You will be redirected to the task list screen and the message \'You are logged in\' will be displayed.' do
+        expect(current_path).to eq '/tasks'
+        expect(page).to have_content 'Logged in as'
       end
 
-      context 'When transitioning to the list screen' do
-       it 'The list of created tasks is displayed in descending order of creation date and time.' do
-          task_list = all('body tbody tr')
-          expect(task_list[0]).to have_content 'third_task'
-          expect(task_list[1]).to have_content 'second_task'
-          expect(task_list[2]).to have_content 'first_task'
-        end
+      it 'Access to your own detail screen.' do
+        click_on 'Account details.'
+        expect(page).to have_content 'Account details page'
       end
-      context 'When creating a new task' do
-        it 'New task is displayed at the top' do
-          visit new_task_path
-          fill_in "titre", with: "title1"
-          fill_in "contenu", with: "content"
-          fill_in "Date limite", with: Date.today
-          find("#task_priority").find("option[value='middle']").select_option
-          find("#task_status").find("option[value='done']").select_option
-          # select "high", from: "task[priority]"
-          # select "done", from: "task[status]"
-          click_button "Creer"
-          expect(page).to have_content "title1"
-        end
-      end
-   
 
-      describe 'Detailed display function' do
-        context 'When transitioned to any task details screen' do
-          let (:task) {FactoryBot.create(:task, title: 'Test', content: 'Je suis un contenu')}
-          it 'The content of the task is displayed' do
-            visit task_path(task)
-            expect(page).to have_content 'Je suis un contenu'
-          end
-        end
-     end
+      it 'Accessing someone else\'s details screen will take you to the task list screen.' do
+        visit user_path(other_user)
+        expect(current_path).to eq '/tasks'
+      end
 
-      # Omitted
-      describe 'sort function' do
-        context 'If you click on the link "Exit Deadline.' do
-          it "A list of tasks sorted in ascending order of due date is displayed." do
-            # Use the all method to check the order of multiple test data
-            click_on 'Date limite'
-            sleep 2
-  
-            task_list = all('body tr')
-            expect(task_list[1].text).to have_content('third_task')
-            expect(task_list[2].text).to have_content('second_task')
-            expect(task_list[3].text).to have_content('first_task')
-          end
-        end
-        context '「If you click on the link "Priority"' do
-          it "A list of tasks sorted by priority is displayed" do
-            # Use the all method to check the order of multiple test data
-            click_on 'priorité'
-            sleep 2
-  
-            task_list = all('body tr')
-            expect(task_list[1].text).to have_content('High')
-            expect(task_list[2].text).to have_content('Middle')
-            expect(task_list[3].text).to have_content('Low')
-          end
-        end
+      it 'When logging out, the user is taken to the login screen and the message \'You have logged out\' is displayed.' do
+        click_on 'logout'
+        expect(page).to have_content 'You have logged out.'
       end
-      describe 'search function' do
-        context 'If you do a fuzzy search on the title' do
-          it "Only tasks that contain the search word will be displayed." do
-            # to and not_to matchers to check both what is displayed and what is not
-              fill_in 'search[title]',	with: "first_task" 
-              click_on 'Search'
-    
-              expect(page).to have_content('first_task')
-              expect(page).not_to have_content('second_task')
-              expect(page).not_to have_content('third_task')
-            
-          end
-        end
-        context 'Search by status' do
-          it "Only tasks matching the searched status will be displayed" do
-            # to and not_to matchers to check both what is displayed and what is not
-            find("#search_status").find("option[value='todo']").select_option
-            click_on 'Search'
-  
-            expect(page).to have_content('first_task')
-            expect(page).not_to have_content('second_task')
-            expect(page).not_to have_content('third_task')
-          end
-        end
-        context 'Search by title and status' do
-          it "Only tasks that include the search word in the title and match the status will be displayed" do
-            # to and not_to matchers to check both what is displayed and what is not
-            fill_in 'search[title]',	with: "first_task" 
-            find("#search_status").find("option[value='todo']").select_option
-            click_on 'Search'
-  
-            expect(page).to have_content('first_task')
-            expect(page).not_to have_content('second_task')
-            expect(page).not_to have_content('third_task')
-          end
-        end
+    end
+  end
+
+  describe 'Administrator Functions' do
+    let!(:other_user) { FactoryBot.create(:user, name: 'aki', email: 'test2@ex.com') }
+
+    context 'When the administrator logs in.' do
+      before { admin_log_in }
+
+      it 'Access to the user list screen.' do
+        click_on 'List of users'
+        expect(page).to have_content 'User list page'
       end
-  end  
+  
+      it 'Can register administrators.' do
+        click_on 'Registering users'
+        fill_in "user[name]",	with: "aki" 
+        fill_in "user[email]",	with: "aki@ex.com" 
+        fill_in "user[password]",	with: "password" 
+        fill_in "user[password_confirmation]",	with: "password" 
+        click_on 'Creer'
+
+        expect(page).to have_content 'user has been registered' 
+        expect(page).to have_content 'aki'
+      end
+
+      it 'Access to the user details screen.' do
+        click_on 'List of users'
+        click_on 'détail', match: :first
+        sleep 2
+        expect(page).to have_content 'User details page' 
+        expect(page).to have_content 'aki' 
+      end
+
+      it 'You can edit users other than yourself from the user edit screen.' do
+        click_on 'List of users'
+        click_on 'Éditer', match: :first
+        sleep 2
+        expect(page).to have_content 'User edit page' 
+        fill_in "user[email]",	with: "testttt@ex.com"
+        fill_in "user[password]",	with: "password" 
+        fill_in "user[password_confirmation]",	with: "password" 
+        click_on 'Mettre à jour'
+
+        expect(page).to have_content 'testttt@ex.com'
+      end
+
+      it 'Users can be deleted.' do
+        click_on 'List of users'
+      
+        accept_alert do
+          click_on 'suppression', match: :first
+        end 
+        
+        expect(page).to have_content 'User deleted.'
+      end
+    end
+    context 'When a general user accesses the user list screen' do
+      before { log_in }
+
+      it 'Transition to the task list screen, with an error message \'Only administrators can access.\'' do
+        visit admin_users_path
+        expect(page).to have_content 'Only administrators can access this screen'
+      end
+    end
+  end
 end
