@@ -14,7 +14,7 @@
         <li><%= link_to "logout", session_path(current_user.id), method: :delete, id: 'sign-out' %></li>
       <% else %>
         <li><%= link_to "Account Registration", new_user_path, id: "sign-up" %></li>
-        <li><%= link_to "login", new_session_path, id: "sign-in" %></li>
+        <li><%= link_to "Login", new_session_path, id: "sign-in" %></li>
       <% end %>
     </ul > 
 </nav>
