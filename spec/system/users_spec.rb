@@ -69,67 +69,67 @@ RSpec.describe 'user management functions', type: :system do
     end
   end
 
-  # describe 'Administrator Functions' do
-  #   let!(:other_user) { FactoryBot.create(:user, name: 'aki', email: 'test2@ex.com') }
+  describe 'Administrator Functions' do
+    let!(:other_user) { FactoryBot.create(:user, name: 'aki', email: 'test2@ex.com') }
 
-  #   context 'When the administrator logs in.' do
-  #     before { admin_log_in }
+    context 'When the administrator logs in.' do
+      before { admin_log_in }
 
-  #     it 'Access to the user list screen.' do
-  #       click_on 'List of users'
-  #       expect(page).to have_content 'User list page'
-  #     end
+      it 'Access to the user list screen.' do
+        click_on 'List of users'
+        expect(page).to have_content 'User list page'
+      end
   
-  #     it 'Can register administrators.' do
-  #       click_on 'Registering users'
-  #       fill_in "user[name]",	with: "aki" 
-  #       fill_in "user[email]",	with: "aki@ex.com" 
-  #       fill_in "user[password]",	with: "password" 
-  #       fill_in "user[password_confirmation]",	with: "password" 
-  #       click_on 'Creer'
+      it 'Can register administrators.' do
+        click_on 'Registering users'
+        fill_in "user[name]",	with: "aki" 
+        fill_in "user[email]",	with: "aki@ex.com" 
+        fill_in "user[password]",	with: "password" 
+        fill_in "user[password_confirmation]",	with: "password" 
+        click_on 'Creer'
 
-  #       expect(page).to have_content 'user has been registered' 
-  #       expect(page).to have_content 'aki'
-  #     end
+        expect(page).to have_content 'user has been registered' 
+        expect(page).to have_content 'aki'
+      end
 
-  #     it 'Access to the user details screen.' do
-  #       click_on 'List of users'
-  #       click_on 'détail', match: :first
-  #       sleep 2
-  #       expect(page).to have_content 'User details page' 
-  #       expect(page).to have_content 'aki' 
-  #     end
+      it 'Access to the user details screen.' do
+        click_on 'List of users'
+        click_on 'détail', match: :first
+        sleep 2
+        expect(page).to have_content 'User details page' 
+        expect(page).to have_content 'aki' 
+      end
 
-  #     it 'You can edit users other than yourself from the user edit screen.' do
-  #       click_on 'List of users'
-  #       click_on 'Éditer', match: :first
-  #       sleep 2
-  #       expect(page).to have_content 'User edit page' 
-  #       fill_in "user[email]",	with: "testttt@ex.com"
-  #       fill_in "user[password]",	with: "password" 
-  #       fill_in "user[password_confirmation]",	with: "password" 
-  #       click_on 'Mettre à jour'
+      it 'You can edit users other than yourself from the user edit screen.' do
+        click_on 'List of users'
+        click_on 'Éditer', match: :first
+        sleep 2
+        expect(page).to have_content 'User edit page' 
+        fill_in "user[email]",	with: "testttt@ex.com"
+        fill_in "user[password]",	with: "password" 
+        fill_in "user[password_confirmation]",	with: "password" 
+        click_on 'Mettre à jour'
 
-  #       expect(page).to have_content 'testttt@ex.com'
-  #     end
+        expect(page).to have_content 'testttt@ex.com'
+      end
 
-  #     it 'Users can be deleted.' do
-  #       click_on 'List of users'
+      it 'Users can be deleted.' do
+        click_on 'List of users'
       
-  #       accept_alert do
-  #         click_on 'suppression', match: :first
-  #       end 
+        accept_alert do
+          click_on 'suppression', match: :first
+        end 
         
-  #       expect(page).to have_content 'User deleted.'
-  #     end
-  #   end
-  #   context 'When a general user accesses the user list screen' do
-  #     before { log_in }
+        expect(page).to have_content 'User deleted.'
+      end
+    end
+    context 'When a general user accesses the user list screen' do
+      before { log_in }
 
-  #     it 'Transition to the task list screen, with an error message \'Only administrators can access.\'' do
-  #       visit admin_users_path
-  #       expect(page).to have_content 'Only administrators can access this screen'
-  #     end
-  #   end
-  # end
+      it 'Transition to the task list screen, with an error message \'Only administrators can access.\'' do
+        visit admin_users_path
+        expect(page).to have_content 'Only administrators can access this screen'
+      end
+    end
+  end
 end
