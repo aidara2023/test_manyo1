@@ -12,16 +12,13 @@ class TasksController < ApplicationController
     end
     
     if params[:search].present?
-      if params[:search][:status].present? && params[:search][:title].present?
-        tasks = tasks.search_status(params[:search][:status]).search_title(params[:search][:title])
-      elsif params[:search][:status].present?
-        tasks = tasks.search_status(params[:search][:status])
-      elsif params[:search][:title].present?
-        tasks = tasks.search_title(params[:search][:title])
-      end
+      tasks = tasks.search_status(params[:search][:status]) if params[:search][:status].present?
+      tasks = tasks.search_title(params[:search][:title]) if params[:search][:title].present?
+      tasks = tasks.search_label_id(params[:search][:label_id]) if params[:search][:label_id].present?
     end
 
     @tasks = tasks.page(params[:page]).per(10)
+    @labels = current_user.labels.pluck(:name, :id)
   end
 
   # GET /tasks/1 or /tasks/1.json
@@ -99,6 +96,6 @@ class TasksController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def task_params
-      params.require(:task).permit(:title, :content, :deadline_on, :priority, :status)
+      params.require(:task).permit(:titre, :content, :deadline_on, :priority, :status)
     end
 end
