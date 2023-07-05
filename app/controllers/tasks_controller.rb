@@ -32,6 +32,7 @@ class TasksController < ApplicationController
   # GET /tasks/new
   def new
     @task = Task.new
+    @labels = current_user.labels
   end
 
   # GET /tasks/1/edit
@@ -43,6 +44,12 @@ class TasksController < ApplicationController
   def create
     @task = Task.new(task_params)
     @task.user = current_user
+    label_ids = params[:task][:label_ids]
+    if label_ids.present?
+      label_ids.each do |label_id|
+        @task.task_labels.new(label_id: label_id)
+      end
+    end
 
     respond_to do |format|
       if @task.save
@@ -57,6 +64,13 @@ class TasksController < ApplicationController
 
   # PATCH/PUT /tasks/1 or /tasks/1.json
   def update
+    @task.labels.destroy_all
+    label_ids = params[:task][:label_ids]
+    if label_ids.present?
+      label_ids.each do |label_id|
+        @task.task_labels.new(label_id: label_id)
+      end
+    end
     respond_to do |format|
       if @task.update(task_params)
         format.html { redirect_to @task, notice: t('.updated') }

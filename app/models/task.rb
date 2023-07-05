@@ -4,6 +4,8 @@ validates :deadline_on, presence: true
 validates :priority, presence: true
 validates :status, presence: true
 belongs_to :user
+has_many :task_labels
+has_many :labels, through: :task_labels
 
 enum priority: { low: 0, middle: 1, high: 2 }
 enum status: { todo: 0, doing: 1, done: 2 }
