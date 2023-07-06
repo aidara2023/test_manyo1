@@ -1,5 +1,5 @@
 class Task < ApplicationRecord
-validates :title, :content, presence: true
+#validates :title, :content, presence: true
 validates :deadline_on, presence: true
 validates :priority, presence: true
 validates :status, presence: true
@@ -16,4 +16,6 @@ scope :sort_created_at, -> { order(created_at: :desc) }
 
 scope :search_status, -> (status) { where(status: status) }
 scope :search_title, -> (title) { where("title LIKE ?", "%#{title}%") }
+scope :search_label_id, -> (label_id) { joins(:labels).where(labels: { id: label_id }).distinct } 
+
 end
