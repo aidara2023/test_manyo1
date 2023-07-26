@@ -11,36 +11,39 @@
     </div>
   <% end %>
 
-  <div class="field">
+  <div class="form-group">
     <%= form.label :title %>
     <%= form.text_field :title %>
   </div>
 
-  <div class="field">
+  <div class="form-group">
     <%= form.label :content %>
     <%= form.text_area :content %>
   </div>
 
-  <div class="field">
+  <div class="form-group">
   <%= form.label :deadline_on %>
   <%= form.date_field :deadline_on %>
 </div>
 
-<div class="field">
+<div class="form-group">
   <%= form.label :priority %>
   <%= form.select :priority, Task.priorities.map { |k, _v| [t("enum.task.priority.#{k}"), k] }, selected: task.priority, include_blank: true %>
 </div>
 
-<div class="field">
+<div class="form-group">
   <%= form.label :status %>
   <%= form.select :status, Task.statuses.map { |k, _v| [t("enum.task.status.#{k}"), k] }, selected: task.status, include_blank: true %>
 </div>
-<div class="field">
-  <%= form.label :label_ids, "label" %>
-  <% Label.all.each do |label| %>
-    <%= form.check_box :label_ids, { multiple: true, checked: label[:checked], disabled: label[:disabled], include_hidden: false, id:'check_id' }, label[:id] %>
-    <label style="background -color: aquamarine"><%= label.name %></label>
-  <% end %>
+<div class="form-group">
+  <%= form.label 'label' %>
+    <br>
+      <% Label.all.each do |label| %>
+        <span class="mr-2">
+        <%= form.check_box :label_ids, { multiple: true, include_hidden: false }, label[:id] %>
+        <%= label.name %>
+        </span>
+    <% end %>
 </div>
 
   <div class="actions">
